@@ -1,6 +1,6 @@
 const { User } = require("../models/user")
 const bcrypt= require('bcrypt')
-const { genarateAccessToken } = require("./jwtService")
+const { genarateAccessToken, genarateRefreshToken } = require("./jwtService")
 
 class AuthService {
     async createUser(user) {
@@ -8,13 +8,15 @@ class AuthService {
         const phone = user?.phone
         return new Promise(async (resolve, reject) => {
             try {
-                const isHasEmail = await User.findOne({ email, phone });
-                if (!isHasEmail) {
+                const isAlreadyAuth = await User.findOne({ email, phone });
+                if (!isAlreadyAuth) {
                     const dataUser = await User.create(user)
                     const accessToken = genarateAccessToken(user)
+                    const refreshToken = genarateRefreshToken(user)
                     resolve({
                         data: dataUser,
-                        accessToken
+                        accessToken,
+                        refreshToken
                     })
 
                 } else {
@@ -23,9 +25,6 @@ class AuthService {
                     })
 
                 }
-
-
-
             } catch (error) {
                 console.log(error)
 
@@ -39,14 +38,14 @@ class AuthService {
 
     }
 
-    async loginUser(){
+    async loginUser(user){
         const email = user?.email
         const phone = user?.phone
         return new Promise(async (resolve, reject) => {
             try {
 
-                const isHasEmail = await User.findOne({ email, phone });
-                if (!isHasEmail) {
+                const isHaveAuth = await User.findOne({ email, phone });
+                if (isHaveAuth) {
                     const dataUser = await User.create(user)
                     resolve({
                         data: dataUser,
@@ -54,7 +53,7 @@ class AuthService {
 
                 } else {
                     reject({
-                        message: 'The email is have aldready',
+                        message: 'Account or password not correct',
                     })
 
                 }

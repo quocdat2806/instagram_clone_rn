@@ -20,7 +20,9 @@ const user = new Schema(
     },
     refreshToken:{
       type:String,
-      require :true
+    },
+    passWord:{
+      type:String,
     },
     email:{
       type:String,
