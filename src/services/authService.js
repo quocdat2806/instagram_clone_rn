@@ -62,7 +62,7 @@ class AuthService {
             });
           } else {
             reject({
-              message: " Password not correct",
+              message: " Password is not correct",
               status: false,
             });
           }
@@ -73,7 +73,6 @@ class AuthService {
           });
         }
       } catch (error) {
-        console.log(error);
         reject({
           message: "Have error when login",
           status: false,

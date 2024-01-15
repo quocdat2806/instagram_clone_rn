@@ -1,30 +1,10 @@
-const multer = require("multer");
-const path = require("path");
 const streamifier = require("streamifier");
 const cloudinary = require("cloudinary").v2;
 const dotenv = require("dotenv");
 dotenv.config();
 const fs = require("fs");
 const crypto = require("crypto");
-const uploadImage = multer({
-  storage: multer.memoryStorage({}),
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-});
-const uploadVideo = multer({
-  storage: multer.diskStorage({}),
-  fileFilter: (req, file, cb) => {
-    cb(null, true);
-  },
-});
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_CLOUD_KEY,
-  api_secret: process.env.API_CLOUD_SECRET,
-  secure: true,
-});
 const uploadFilesToCloudinary = async (file) => {
   return new Promise((resolve, reject) => {
     try {
@@ -37,7 +17,6 @@ const uploadFilesToCloudinary = async (file) => {
       });
       streamifier.createReadStream(file.buffer).pipe(stream);
     } catch (error) {
-      console.log(error);
       reject({
         message: "Have error when upload image to cloudinary ",
       });
@@ -50,7 +29,7 @@ const uploadVideoToCloudinary = async (path) => {
     try {
       cloudinary.uploader.upload_large(
         path,
-        { resource_type: "video" },
+        { resource_type: "video", chunk_size: 1024 * 1024 * 5 },
         (err, result) => {
           if (err) {
             reject({
@@ -63,9 +42,8 @@ const uploadVideoToCloudinary = async (path) => {
         }
       );
     } catch (error) {
-      console.log(error);
       reject({
-        message: "Have error when upload image to cloudinary ",
+        message: "Have error when upload video to cloudinary ",
       });
     }
   });
@@ -102,11 +80,8 @@ const writeSslKey = async () => {
 };
 
 module.exports = {
-  uploadImage,
-  uploadVideo,
   uploadFilesToCloudinary,
   readSslKey,
   writeSslKey,
-  cloudinary,
   uploadVideoToCloudinary,
 };

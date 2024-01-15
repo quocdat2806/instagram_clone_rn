@@ -4,7 +4,6 @@ const {
 } = require("../helper");
 const { Video } = require("../models/video");
 const { User } = require("../models/user");
-
 class UserService {
   async createPost(payload, auth) {
     return new Promise(async (resolve, reject) => {
@@ -18,12 +17,15 @@ class UserService {
         const urlFile = result.secure_url;
         const assetsId = result.assets_id;
         const publicId = result.public_id;
-        await Post.create({
-          postImages: [urlFile],
-          userId: user._id,
-          content: payload.content,
+        const postItem = {
+          urlFile,
           assetsId,
           publicId,
+        };
+        await Post.create({
+          postImages: [postItem],
+          userId: user._id,
+          content: payload.content,
         });
         resolve({ message: "Create post  success", status: true });
       } catch (error) {
@@ -44,19 +46,24 @@ class UserService {
           $or: [{ email }, { phone }],
         });
         const result = await uploadVideoToCloudinary(payload.path);
-        console.log("result", result);
 
+        const urlFile = result.secure_url;
+        const assetsId = result.assets_id;
         const publicId = result.public_id;
+        const videoItem = {
+          urlFile,
+          assetsId,
+          publicId,
+        };
         await Video.create({
-          videos: [urlFile],
+          videos: [videoItem],
           userId: user._id,
           content: payload.content,
         });
-        resolve({ message: "Create post  success", status: true });
+        resolve({ message: "Create video  success", status: true });
       } catch (error) {
-        console.log(error);
         reject({
-          message: "Have error when create post",
+          message: "Have error when create video",
           status: false,
         });
       }

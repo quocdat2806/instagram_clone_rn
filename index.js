@@ -1,5 +1,5 @@
 var express = require("express");
 const { setUpServer } = require("./src/config");
 var app = express();
-setUpServer(app)
+setUpServer(app);
 module.exports = app;
