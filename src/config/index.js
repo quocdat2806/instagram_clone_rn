@@ -3,7 +3,7 @@ var bodyParser = require("body-parser");
 var express = require("express");
 const { connectToDb } = require("../db");
 const router = require("../routes");
-const multer = require("multer");
+
 const cloudinary = require("cloudinary").v2;
 async function setUpServer(app) {
   try {
@@ -19,19 +19,6 @@ async function setUpServer(app) {
   }
 }
 
-const uploadImage = multer({
-  storage: multer.memoryStorage({}),
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-});
-const uploadVideo = multer({
-  storage: multer.diskStorage({}),
-  fileFilter: (req, file, cb) => {
-    cb(null, true);
-  },
-});
-
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_CLOUD_KEY,
@@ -41,7 +28,5 @@ cloudinary.config({
 
 module.exports = {
   setUpServer,
-  uploadImage,
-  uploadVideo,
   cloudinary,
 };
