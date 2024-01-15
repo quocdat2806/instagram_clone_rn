@@ -1,74 +1,66 @@
-const { User } = require("../models/user")
-const bcrypt= require('bcrypt')
-const { genarateAccessToken } = require("./jwtService")
+const {
+  uploadFilesToCloudinary,
+  uploadVideoToCloudinary,
+} = require("../helper");
+const { Video } = require("../models/video");
+const { User } = require("../models/user");
 
 class UserService {
-    async createUser(user) {
-        const email = user?.email
-        const phone = user?.phone
-        return new Promise(async (resolve, reject) => {
-            try {
-                const isHasEmail = await User.findOne({ email, phone });
-                if (!isHasEmail) {
-                    const dataUser = await User.create(user)
-                    const accessToken = genarateAccessToken(user)
-                    resolve({
-                        data: dataUser,
-                        accessToken
-                    })
+  async createPost(payload, auth) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { email, phone } = auth;
+        const user = await User.findOne({
+          $or: [{ email }, { phone }],
+        });
+        console.log("User found", user);
+        const result = await uploadFilesToCloudinary(payload.file);
+        const urlFile = result.secure_url;
+        const assetsId = result.assets_id;
+        const publicId = result.public_id;
+        await Post.create({
+          postImages: [urlFile],
+          userId: user._id,
+          content: payload.content,
+          assetsId,
+          publicId,
+        });
+        resolve({ message: "Create post  success", status: true });
+      } catch (error) {
+        console.log(error);
+        reject({
+          message: "Have error when create post",
+          status: false,
+        });
+      }
+    });
+  }
 
-                } else {
-                    reject({
-                        message: 'The email or phone is have aldready',
-                    })
+  async createVideo(payload, auth) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { email, phone } = auth;
+        const user = await User.findOne({
+          $or: [{ email }, { phone }],
+        });
+        const result = await uploadVideoToCloudinary(payload.path);
+        console.log("result", result);
 
-                }
-
-
-
-            } catch (error) {
-                console.log(error)
-
-                reject({
-                    message: 'Have error when create user',
-                })
-            }
-
-        })
-
-
-    }
-
-    async loginUser(){
-        const email = user?.email
-        const phone = user?.phone
-        return new Promise(async (resolve, reject) => {
-            try {
-
-                const isHasEmail = await User.findOne({ email, phone });
-                if (!isHasEmail) {
-                    const dataUser = await User.create(user)
-                    resolve({
-                        data: dataUser,
-                    })
-
-                } else {
-                    reject({
-                        message: 'The email is have aldready',
-                    })
-
-                }
-
-
-
-            } catch (error) {
-
-                reject({
-                    message: 'Have error when create user',
-                })
-            }
-
-        })
-    }
+        const publicId = result.public_id;
+        await Video.create({
+          videos: [urlFile],
+          userId: user._id,
+          content: payload.content,
+        });
+        resolve({ message: "Create post  success", status: true });
+      } catch (error) {
+        console.log(error);
+        reject({
+          message: "Have error when create post",
+          status: false,
+        });
+      }
+    });
+  }
 }
-module.exports = new UserService()
+module.exports = new UserService();

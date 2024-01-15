@@ -1,15 +1,20 @@
-const express = require('express')
-const userRouter  = express.Router();
-const userController = require('../controllers/userController');
-const { upload } = require('../helper');
+const express = require("express");
+const userRouter = express.Router();
+const userController = require("../controllers/userController");
+const { uploadVideo, uploadImage } = require("../helper");
+const middleware = require("../middleware");
 
-userRouter.post('/createPost',upload.any(),userController.createPost)
-userRouter.post('/createVideo',userController.createVideo)
+userRouter.post(
+  "/createPost",
+  middleware.verifyToken,
+  uploadImage.single("image"),
+  userController.createPost
+);
+userRouter.post(
+  "/createVideo",
+  middleware.verifyToken,
+  uploadVideo.single("video"),
 
-
-
-
-
-module.exports = userRouter
-
-
+  userController.createVideo
+);
+module.exports = userRouter;
