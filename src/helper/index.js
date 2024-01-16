@@ -1,22 +1,8 @@
 const streamifier = require("streamifier");
-const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
-const dotenv = require("dotenv");
-dotenv.config();
 const fs = require("fs");
 const crypto = require("crypto");
-const uploadImageMulter = multer({
-  storage: multer.memoryStorage({}),
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-});
-const uploadVideoMulter = multer({
-  storage: multer.diskStorage({}),
-  fileFilter: (req, file, cb) => {
-    cb(null, true);
-  },
-});
+const { cloudinary } = require("../config");
+
 const uploadFilesToCloudinary = async (file) => {
   return new Promise((resolve, reject) => {
     try {
@@ -96,6 +82,4 @@ module.exports = {
   readSslKey,
   writeSslKey,
   uploadVideoToCloudinary,
-  uploadImageMulter,
-  uploadVideoMulter,
 };

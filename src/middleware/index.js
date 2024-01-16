@@ -1,9 +1,6 @@
 const crypto = require("crypto");
-const fs = require("fs");
 const { readSslKey } = require("../helper");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
 class Middleware {
   verifyToken(req, res, next) {
     const token = req.headers.token.split(" ")[1];
