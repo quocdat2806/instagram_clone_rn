@@ -1,10 +1,43 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const commentSchema = new Schema({
-  text: { type: String, required: true },
-  parentPath: [{ type: Schema.Types.ObjectId, ref: 'Comment',default:null }],
-  likes: { type: Number, default: 0 },
-  post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
+  content: { type: String },
+  commentLeft: { type: Number },
+  commentRight: { type: Number },
+  likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  postId: { type: Schema.Types.ObjectId, ref: "Post", required: true },
 });
-const Comment = mongoose.model('Comment', commentSchema);
+
+commentSchema.statics.addComment = async function (content, parentId, postId) {
+  let commentLeft, commentRight;
+  if (parentId) {
+    const parentComment = await this.findById(parentId);
+    if (!parentComment) {
+      throw new Error("Parent comment not found");
+    }
+    commentLeft = parentComment.commentRight;
+    commentRight = commentLeft + 1;
+
+    await this.updateMany(
+      { commentLeft: { $gte: commentLeft } },
+      { $inc: { commentLeft: 2, commentRight: 2 } }
+    );
+  } else {
+    commentLeft = 1;
+    commentRight = 2;
+  }
+
+  const comment = new this({
+    content: content,
+    commentLeft: commentLeft,
+    commentRight: commentRight,
+    postId: postId,
+  });
+
+  await comment.save();
+  return comment;
+};
+
+const Comment = mongoose.model("Comment", commentSchema);
+module.exports = { Comment };

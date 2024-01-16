@@ -54,6 +54,7 @@ const user = new Schema(
     avatar: {
       type: String,
     },
+    devicesToken: [{ type: String }],
   },
   {
     collection: "users",
