@@ -4,6 +4,10 @@ const {
 } = require("../helper");
 const { Video } = require("../models/video");
 const { User } = require("../models/user");
+const { Post } = require("../models/post");
+const { getMessaging } = require("../firebase/index.js");
+const { response } = require("express");
+const { TYPE_POST } = require("../../constants/index.js");
 class UserService {
   async createPost(payload, auth) {
     return new Promise(async (resolve, reject) => {
@@ -12,18 +16,17 @@ class UserService {
         const user = await User.findOne({
           $or: [{ email }, { phone }],
         });
-        console.log("User found", user);
         const result = await uploadFilesToCloudinary(payload.file);
         const urlFile = result.secure_url;
-        const assetsId = result.assets_id;
+        const assetId = result.asset_id;
         const publicId = result.public_id;
         const postItem = {
           urlFile,
-          assetsId,
+          assetId,
           publicId,
         };
         await Post.create({
-          postImages: [postItem],
+          images: [postItem],
           userId: user._id,
           content: payload.content,
         });
@@ -48,11 +51,11 @@ class UserService {
         const result = await uploadVideoToCloudinary(payload.path);
 
         const urlFile = result.secure_url;
-        const assetsId = result.assets_id;
+        const assetId = result.asset_id;
         const publicId = result.public_id;
         const videoItem = {
           urlFile,
-          assetsId,
+          assetId,
           publicId,
         };
         await Video.create({
@@ -64,6 +67,118 @@ class UserService {
       } catch (error) {
         reject({
           message: "Have error when create video",
+          status: false,
+        });
+      }
+    });
+  }
+
+  async following(payload, auth) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { email, phone } = auth;
+        const receiverId = payload?.receiverId;
+        const senderUser = await User.findOne({
+          $or: [{ email }, { phone }],
+        });
+        const receiveUser = User.findById({ _id: receiverId });
+        const devicesToken = receiveUser?.devicesToken;
+        const topic = `${senderUser?.name} đã follow bạn `;
+        const response = await getMessaging().subscribeToTopic(
+          devicesToken,
+          topic
+        );
+
+        console.log("response", response);
+        resolve({
+          message: "Following success",
+          status: true,
+        });
+      } catch (error) {
+        reject({
+          message: "Have error when following",
+          status: false,
+        });
+      }
+    });
+  }
+  async comment(payload, auth, id) {
+    return new Promise(async (resolve, reject) => {
+      const type = payload.type;
+      let devicesToken = [];
+      try {
+        const { email, phone } = auth;
+        const senderUser = await User.findOne({
+          $or: [{ email }, { phone }],
+        });
+        if ((type = TYPE_POST.POST)) {
+          const post = await Post.findById({ _id: id }).populate({
+            path: "userId",
+            select: "devicesToken",
+          });
+          devicesToken = [...post?.user?.devicesToken];
+        } else {
+          const video = await Video.findById({ _id: id }).populate({
+            path: "userId",
+            select: "devicesToken",
+          });
+          devicesToken = [...video?.user?.devicesToken];
+        }
+        const topic = `${senderUser?.name} đã comment 1 ${type}  của bạn `;
+        const response = await getMessaging().subscribeToTopic(
+          devicesToken,
+          topic
+        );
+        console.log("response", response);
+        resolve({
+          message: "Comment success",
+          status: true,
+        });
+      } catch (error) {
+        reject({
+          message: "Have error when comment",
+          status: false,
+        });
+      }
+    });
+  }
+
+  async like(payload, auth, id) {
+    return new Promise(async (resolve, reject) => {
+      const type = payload.type;
+      let devicesToken = [];
+      try {
+        const { email, phone } = auth;
+        const senderUser = await User.findOne({
+          $or: [{ email }, { phone }],
+        });
+        if ((type = TYPE_POST.POST)) {
+          const post = await Post.findById({ _id: id }).populate({
+            path: "userId",
+            select: "devicesToken",
+          });
+          devicesToken = [...post?.user?.devicesToken];
+        } else {
+          const video = await Video.findById({ _id: id }).populate({
+            path: "userId",
+            select: "devicesToken",
+          });
+          devicesToken = [...video?.user?.devicesToken];
+        }
+
+        const topic = `${senderUser?.name} đã comment 1 ${type}  của bạn `;
+        const response = await getMessaging().subscribeToTopic(
+          devicesToken,
+          topic
+        );
+        console.log("response", response);
+        resolve({
+          message: "Following success",
+          status: true,
+        });
+      } catch (error) {
+        reject({
+          message: "Have error when following",
           status: false,
         });
       }
