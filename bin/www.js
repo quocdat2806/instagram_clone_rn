@@ -1,7 +1,7 @@
 var app = require("../index.js");
 var debug = require("debug")("instagram_clone:server");
 var http = require("http");
-const { configWebSocket } = require("../websocket/index.js");
+const { configWebSocket } = require("../src/websocket");
 var port = normalizePort(process.env.PORT || 3000);
 app.set("port", port);
 var server = http.createServer(app);
