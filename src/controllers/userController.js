@@ -32,9 +32,9 @@ class UserController {
   }
   async following(req, res) {
     const auth = res.locals.data.payload;
-    const data = req.body?.payload;
+    const idReceiver = req.params.id;
     try {
-      const response = await userService.following(data, auth);
+      const response = await userService.following(idReceiver, auth);
       return res.status(200).json(response);
     } catch (error) {
       return res.status(400).json(error);
@@ -42,10 +42,33 @@ class UserController {
   }
   async comment(req, res) {
     const auth = res.locals.data.payload;
-    const data = req.body?.payload;
+    const data = req.body;
     const id = req.params.id;
     try {
       const response = await userService.comment(data, auth, id);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
+  }
+  async like(req, res) {
+    const auth = res.locals.data.payload;
+    const id = req.params.id;
+    const type = req.query.type;
+    console.log(type, id);
+    try {
+      const response = await userService.like(id, auth, type);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
+  }
+  async getComment(req, res) {
+    const postId = req.params.id;
+    const limit = req.query.limit;
+    const page = req.query.page;
+    try {
+      const response = await userService.getComment(postId, limit, page);
       return res.status(200).json(response);
     } catch (error) {
       return res.status(400).json(error);
