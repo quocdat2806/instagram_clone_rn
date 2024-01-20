@@ -13,7 +13,7 @@ const videoItemSchema = new Schema(
     _id: false,
   }
 );
-const video = new Schema(
+const videoSchema = new Schema(
   {
     name: { type: String },
     content: { type: String, default: "" },
@@ -31,7 +31,7 @@ const video = new Schema(
   }
 );
 
-const Video = mongoose.model("video", video);
+const Video = mongoose.model("video", videoSchema);
 module.exports = {
   Video,
 };

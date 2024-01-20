@@ -13,7 +13,7 @@ const imageItemSchema = new Schema(
     _id: false,
   }
 );
-const post = new Schema(
+const postSchema = new Schema(
   {
     content: { type: String, default: "" },
     userId: { type: Schema.Types.ObjectId, ref: "User" },
@@ -30,7 +30,7 @@ const post = new Schema(
   }
 );
 
-const Post = mongoose.model("post", post);
+const Post = mongoose.model("post", postSchema);
 module.exports = {
   Post,
 };

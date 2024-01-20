@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const user = new Schema(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -55,6 +55,7 @@ const user = new Schema(
       type: String,
     },
     devicesToken: [{ type: String }],
+    follows: [{ type: Schema.Types.ObjectId, ref: "Follow" }],
   },
   {
     collection: "users",
@@ -62,7 +63,7 @@ const user = new Schema(
   }
 );
 
-const User = mongoose.model("user", user);
+const User = mongoose.model("user", userSchema);
 module.exports = {
   User,
 };
