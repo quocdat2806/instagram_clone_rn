@@ -1,27 +1,34 @@
 const express = require("express");
 const userRouter = express.Router();
 const userController = require("../controllers/userController");
-const { uploadVideoMulter, uploadImageMulter } = require("../config");
+const {
+  configUploadVideoMulter,
+  configUploadImageMulter,
+} = require("../config");
 const middleware = require("../middleware");
 userRouter.post(
   "/createPost",
   middleware.verifyToken,
-  uploadImageMulter.single("image"),
+  configUploadImageMulter.single("image"),
   userController.createPost
 );
 userRouter.post(
   "/createVideo",
   middleware.verifyToken,
-  uploadVideoMulter.single("video"),
+  configUploadVideoMulter.single("video"),
   userController.createVideo
 );
 userRouter.post(
   "/follow/:id",
   middleware.verifyToken,
-  userController.following
+  userController.addFollow
 );
-userRouter.post("/comment/:id", middleware.verifyToken, userController.comment);
-userRouter.post("/like/:id", middleware.verifyToken, userController.like);
+userRouter.post(
+  "/comment/:id",
+  middleware.verifyToken,
+  userController.addComment
+);
+userRouter.post("/like/:id", middleware.verifyToken, userController.addLike);
 userRouter.get(
   "/comment/:id",
   middleware.verifyToken,

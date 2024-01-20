@@ -18,14 +18,6 @@ class AuthController {
       return res.status(400).json(error);
     }
   }
-  refreshToken(req, res) {
-    try {
-      return res.status(200).json({ status: "ok" });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).json(error);
-    }
-  }
 }
 
 module.exports = new AuthController();

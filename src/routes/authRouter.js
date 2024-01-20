@@ -9,7 +9,7 @@ authRouter.post("/signup", authController.createUser);
 authRouter.post("/signin", authController.loginUser);
 authRouter.post(
   "/refreshToken",
-  middleware.verifyRefreshToken,
+  (req, res, next) => middleware.verifyToken(req, res, next, "refresh_token"),
   jwtController.refreshToken
 );
 module.exports = authRouter;

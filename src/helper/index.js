@@ -1,12 +1,12 @@
 const streamifier = require("streamifier");
 const fs = require("fs");
 const crypto = require("crypto");
-const { cloudinary } = require("../config");
+const { configCloudinary } = require("../config");
 
 const uploadFilesToCloudinary = async (file) => {
   return new Promise((resolve, reject) => {
     try {
-      let stream = cloudinary.uploader.upload_stream((error, result) => {
+      let stream = configCloudinary.uploader.upload_stream((error, result) => {
         if (result) {
           resolve(result);
         } else {
@@ -25,7 +25,7 @@ const uploadFilesToCloudinary = async (file) => {
 const uploadVideoToCloudinary = async (path) => {
   return new Promise((resolve, reject) => {
     try {
-      cloudinary.uploader.upload_large(
+      configCloudinary.uploader.upload_large(
         path,
         { resource_type: "video", chunk_size: 1024 * 1024 * 5 },
         (err, result) => {
@@ -47,9 +47,9 @@ const uploadVideoToCloudinary = async (path) => {
   });
 };
 
-const readSslKey = async () => {
-  const publicKey = await fs.readFileSync("./ssl/public.pem").toString();
-  const privateKey = await fs.readFileSync("./ssl/private.pem").toString();
+const readSslKey = () => {
+  const publicKey = fs.readFileSync("./ssl/public.pem").toString();
+  const privateKey = fs.readFileSync("./ssl/private.pem").toString();
   return {
     publicKey,
     privateKey,
@@ -57,10 +57,10 @@ const readSslKey = async () => {
 };
 
 const writeSslKey = async () => {
-  const sslKey = await readSslKey();
+  const sslKey = readSslKey();
   const { publicKey, privateKey } = sslKey;
   if (!publicKey || !privateKey) {
-    const keypair = crypto.generateKeyPairSync("rsa", {
+    const keyPair = crypto.generateKeyPairSync("rsa", {
       modulusLength: 4096,
       publicKeyEncoding: {
         type: "spki",
@@ -71,9 +71,9 @@ const writeSslKey = async () => {
         format: "pem",
       },
     });
-    fs.writeFileSync("./ssl/public.pem", keypair.publicKey);
+    fs.writeFileSync("./ssl/public.pem", keyPair.publicKey);
 
-    fs.writeFileSync("./ssl/private.pem", keypair.privateKey);
+    fs.writeFileSync("./ssl/private.pem", keyPair.privateKey);
   }
 };
 

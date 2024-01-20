@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
   sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  receiver: {
+  receiverId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -11,6 +11,6 @@ const messageSchema = new mongoose.Schema({
   timestamp: true,
 });
 
-const Message = mongoose.model("Message", messageSchema);
+const Message = mongoose.model("message", messageSchema);
 
 module.exports = Message;

@@ -5,26 +5,19 @@ const {
 const { Video } = require("../models/video");
 const { User } = require("../models/user");
 const { Post } = require("../models/post");
-const { getMessaging } = require("../firebase/index.js");
-const { TYPE_POST } = require("../constants/index.js");
 const { Comment } = require("../models/comment.js");
 const { Like } = require("../models/like.js");
 const { Follow } = require("../models/follower.js");
-const { FindUserInfo } = require("../utils/index.js");
+const { getMessaging } = require("../firebase/index.js");
+const { TYPE_COMMON } = require("../constants/index.js");
+const { findUserInfo, getResultProgressUpload } = require("../utils/index.js");
 class UserService {
   async createPost(payload, auth) {
     return new Promise(async (resolve, reject) => {
       try {
-        const user = await FindUserInfo(auth);
+        const user = await findUserInfo(auth);
         const result = await uploadFilesToCloudinary(payload.file);
-        const urlFile = result.secure_url;
-        const assetId = result.asset_id;
-        const publicId = result.public_id;
-        const postItem = {
-          urlFile,
-          assetId,
-          publicId,
-        };
+        const postItem = getResultProgressUpload(result);
         await Post.create({
           images: [postItem],
           userId: user._id,
@@ -32,7 +25,6 @@ class UserService {
         });
         resolve({ message: "Create post  success", status: true });
       } catch (error) {
-        console.log(error);
         reject({
           message: "Have error when create post",
           status: false,
@@ -44,20 +36,10 @@ class UserService {
   async createVideo(payload, auth) {
     return new Promise(async (resolve, reject) => {
       try {
-        const { email, phone } = auth;
-        const user = await User.findOne({
-          $or: [{ email }, { phone }],
-        });
+        const user = await findUserInfo(auth);
         const result = await uploadVideoToCloudinary(payload.path);
+        const videoItem = getResultProgressUpload(result);
 
-        const urlFile = result.secure_url;
-        const assetId = result.asset_id;
-        const publicId = result.public_id;
-        const videoItem = {
-          urlFile,
-          assetId,
-          publicId,
-        };
         await Video.create({
           videos: [videoItem],
           userId: user._id,
@@ -73,31 +55,29 @@ class UserService {
     });
   }
 
-  async following(receiverId, auth) {
+  async addFollow(receiverId, auth) {
     return new Promise(async (resolve, reject) => {
       try {
-        const { email, phone } = auth;
-        const senderUser = await User.findOne({
-          $or: [{ email }, { phone }],
-        });
+        const user = await findUserInfo(auth);
+
         // const devicesToken = receiveUser?.devicesToken;
         // const topic = `${senderUser?.name} đã follow bạn `;
         // const response = await getMessaging().subscribeToTopic(
         //   devicesToken,
         //   topic
         // );
-        const FollowRes = await Follow.create({
-          followerId: senderUser._id,
+        const followRes = await Follow.create({
+          followerId: user._id,
           followingId: receiverId,
         });
         await User.findByIdAndUpdate(
           { _id: receiverId },
           {
-            $push: { follows: FollowRes._id },
+            $push: { follows: followRes._id },
           }
         );
         await User.findByIdAndUpdate(
-          { _id: senderUser._id },
+          { _id: user._id },
           {
             $push: { follows: FollowRes._id },
           }
@@ -115,7 +95,7 @@ class UserService {
       }
     });
   }
-  async comment(payload, auth, id) {
+  async addComment(payload, auth, id) {
     return new Promise(async (resolve, reject) => {
       const content = payload.content;
       const parentId = payload?.parentId;
@@ -134,7 +114,7 @@ class UserService {
           id,
           senderUser._id
         );
-        if (type == TYPE_POST.POST) {
+        if (type == TYPE_COMMON.POST) {
           // const post = await Post.findById({ _id: id }).populate({
           //   path: "userId",
           //   select: "devicesToken",
@@ -168,22 +148,22 @@ class UserService {
     });
   }
 
-  async like(id, auth, type) {
+  async addLike(id, auth, type) {
     return new Promise(async (resolve, reject) => {
-      const like = await Like.like(id, type);
+      const like = await Like.addLike(id, type);
       let devicesToken = [];
       try {
         const { email, phone } = auth;
         const senderUser = await User.findOne({
           $or: [{ email }, { phone }],
         });
-        if ((type = TYPE_POST.POST)) {
+        if ((type = TYPE_COMMON.POST)) {
           // const post = await Post.findById({ _id: id }).populate({
           //   path: "userId",
           //   select: "devicesToken",
           // });
           // devicesToken = [...post?.user?.devicesToken];
-        } else if (type === TYPE_POST.VIDEO) {
+        } else if (type === TYPE_COMMON.VIDEO) {
           // const video = await Video.findById({ _id: id }).populate({
           //   path: "userId",
           //   select: "devicesToken",

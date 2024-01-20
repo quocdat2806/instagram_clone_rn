@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { TYPE_POST } = require("../constants");
+const { TYPE_COMMON } = require("../constants");
 const Schema = mongoose.Schema;
 
 const likeSchema = new Schema(
@@ -19,18 +19,18 @@ const likeSchema = new Schema(
   }
 );
 
-likeSchema.statics.like = async function (id, type) {
+likeSchema.statics.addLike = async function (id, type) {
   const likeObj = { type: type };
   switch (type) {
-    case TYPE_POST.COMMENT: {
+    case TYPE_COMMON.COMMENT: {
       likeObj.commentId = id;
       break;
     }
-    case TYPE_POST.VIDEO: {
+    case TYPE_COMMON.VIDEO: {
       likeObj.videoId = id;
       break;
     }
-    case TYPE_POST.POST: {
+    case TYPE_COMMON.POST: {
       likeObj.postId = id;
       break;
     }
@@ -45,5 +45,5 @@ likeSchema.statics.like = async function (id, type) {
   return like;
 };
 
-const Like = mongoose.model("Like", likeSchema);
+const Like = mongoose.model("like", likeSchema);
 module.exports = { Like };

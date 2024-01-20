@@ -19,18 +19,18 @@ class UserController {
   async createVideo(req, res) {
     const auth = res.locals.data.payload;
     const content = req.body.content ?? "";
-    const post = {
+    const video = {
       content,
       path: req.file.path,
     };
     try {
-      const response = await userService.createVideo(post, auth);
+      const response = await userService.createVideo(video, auth);
       return res.status(200).json(response);
     } catch (error) {
       return res.status(400).json(error);
     }
   }
-  async following(req, res) {
+  async addFollow(req, res) {
     const auth = res.locals.data.payload;
     const idReceiver = req.params.id;
     try {
@@ -40,24 +40,23 @@ class UserController {
       return res.status(400).json(error);
     }
   }
-  async comment(req, res) {
+  async addComment(req, res) {
     const auth = res.locals.data.payload;
     const data = req.body;
-    const id = req.params.id;
+    const postId = req.params.id;
     try {
-      const response = await userService.comment(data, auth, id);
+      const response = await userService.comment(data, auth, postId);
       return res.status(200).json(response);
     } catch (error) {
       return res.status(400).json(error);
     }
   }
-  async like(req, res) {
+  async addLike(req, res) {
     const auth = res.locals.data.payload;
-    const id = req.params.id;
-    const type = req.query.type;
-    console.log(type, id);
+    const idLike = req.params.id;
+    const typeLike = req.query.type;
     try {
-      const response = await userService.like(id, auth, type);
+      const response = await userService.like(idLike, auth, typeLike);
       return res.status(200).json(response);
     } catch (error) {
       return res.status(400).json(error);
@@ -67,6 +66,7 @@ class UserController {
     const postId = req.params.id;
     const limit = req.query.limit;
     const page = req.query.page;
+
     try {
       const response = await userService.getComment(postId, limit, page);
       return res.status(200).json(response);

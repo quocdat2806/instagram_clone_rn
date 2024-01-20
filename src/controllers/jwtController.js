@@ -1,7 +1,7 @@
 const jwtService = require("../services/jwtService");
 
 class JwtController {
-  refreshToken(req, res) {
+  refreshToken(_, res) {
     try {
       const payload = res.locals.data.payload;
       const accessToken = jwtService.generateAccessToken(payload);

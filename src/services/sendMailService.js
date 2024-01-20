@@ -11,7 +11,7 @@ const sendMail = async () => {
   try {
     const accessToken = await oAuth2Client.getAccessToken();
     const transporter = nodemailer.createTransport({
-      host: "dath33503@gmail.com",
+      host: "dath33603@gmail.com",
       service: "gmail",
       setMaxListeners: 10000,
       port: 3000,
@@ -30,7 +30,7 @@ const sendMail = async () => {
       from: '"DAT2K3 👻" <dath33603@gmail.com>"',
       to: "dattqph28614@fpt.edu.vn",
       subject: "Hello ✔",
-      text: "Em yêu ngủ ngon nha ... ",
+      text: "CON CAC ... ",
     });
     console.log("info", info);
   } catch (e) {

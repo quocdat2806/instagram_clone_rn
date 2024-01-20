@@ -2,17 +2,15 @@ const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("./jwtService");
 const middleware = require("../middleware/index.js");
+const { findUserInfo } = require("../utils/index.js");
 class AuthService {
-  async createUser(data) {
-    const decodedString = await middleware.decodeData(data.data);
+  async createUser(payload) {
+    const decodedString = await middleware.decodeData(payload.data);
     const parseToObj = JSON.parse(decodedString);
-    const { email = "", phone = "", passWord = "" } = parseToObj;
     const passwordHash = bcrypt.hashSync(passWord, 10);
     return new Promise(async (resolve, reject) => {
       try {
-        const isAlreadyAuth = await User.findOne({
-          $or: [{ email }, { phone }],
-        });
+        const isAlreadyAuth = await findUserInfo(parseToObj);
         if (!isAlreadyAuth) {
           const accessToken = generateAccessToken(parseToObj);
           const refreshToken = generateRefreshToken(parseToObj);
@@ -45,12 +43,10 @@ class AuthService {
   async loginUser(payload) {
     const decodedString = await middleware.decodeData(payload.data);
     const parseToObj = JSON.parse(decodedString);
-    const { email = "", phone = "", passWord = "" } = parseToObj;
+    const { passWord } = parseToObj;
     return new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({
-          $or: [{ email }, { phone }],
-        });
+        const user = await findUserInfo(parseToObj);
         if (user) {
           const comparePasswords = bcrypt.compareSync(passWord, user.passWord);
           if (comparePasswords) {

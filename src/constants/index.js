@@ -1,6 +1,6 @@
-const TYPE_POST = {
+const TYPE_COMMON = {
   POST: "post",
   VIDEO: "video",
   COMMENT: "comment",
 };
-module.exports = { TYPE_POST };
+module.exports = { TYPE_COMMON };

@@ -9,12 +9,12 @@ const {
   REDIRECT_URL,
   REFRESH_TOKEN,
 } = require("../proxy");
-const oAuth2Client = new google.auth.OAuth2(
+const configOAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
   REDIRECT_URL
 );
-oAuth2Client.setCredentials({
+configOAuth2Client.setCredentials({
   refresh_token: REFRESH_TOKEN,
 });
 cloudinary.config({
@@ -23,19 +23,19 @@ cloudinary.config({
   api_secret: process.env.API_CLOUD_SECRET,
   secure: true,
 });
-const limiter = rateLimit({
+const configLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
   standardHeaders: "draft-7",
   legacyHeaders: false,
 });
-const uploadImageMulter = multer({
+const configUploadImageMulter = multer({
   storage: multer.memoryStorage({}),
   limits: {
     fileSize: 1024 * 1024 * 5,
   },
 });
-const uploadVideoMulter = multer({
+const configUploadVideoMulter = multer({
   storage: multer.diskStorage({}),
   fileFilter: (req, file, cb) => {
     cb(null, true);
@@ -43,9 +43,9 @@ const uploadVideoMulter = multer({
 });
 
 module.exports = {
-  cloudinary,
-  uploadImageMulter,
-  uploadVideoMulter,
-  limiter,
-  oAuth2Client,
+  configCloudinary: cloudinary,
+  configUploadImageMulter,
+  configUploadVideoMulter,
+  configLimiter,
+  configOAuth2Client,
 };
