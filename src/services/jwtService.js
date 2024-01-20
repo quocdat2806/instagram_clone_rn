@@ -5,7 +5,7 @@ function generateAccessToken(payload) {
       payload,
     },
     process.env.ACCESS_TOKEN_KEY,
-    { expiresIn: "2h" }
+    { expiresIn: "16h" }
   );
   return accessToken;
 }
