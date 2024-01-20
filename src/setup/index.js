@@ -6,11 +6,10 @@ const router = require("../routes");
 const { limiter } = require("../config/index.js");
 require("../firebase");
 const dotenv = require("dotenv");
-const { sendMail } = require("../../src/services/sendMail.js");
 async function setUpServer(app) {
   try {
     dotenv.config();
-    await connectToDb();
+    connectToDb();
     app.use(limiter);
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
