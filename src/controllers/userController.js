@@ -74,5 +74,14 @@ class UserController {
       return res.status(400).json(error);
     }
   }
+  async getInfoUser(req, res) {
+    const userId = req.params.id;
+    try {
+      const response = await userService.getInfoUser(userId);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
+  }
 }
 module.exports = new UserController();

@@ -3,11 +3,12 @@ const {
   uploadVideoToCloudinary,
 } = require("../helper");
 const { Video } = require("../models/video");
+const { Follow } = require("../models/follower.js");
+
 const { User } = require("../models/user");
 const { Post } = require("../models/post");
 const { Comment } = require("../models/comment.js");
 const { Like } = require("../models/like.js");
-const { Follow } = require("../models/follower.js");
 const { getMessaging } = require("../firebase/index.js");
 const { TYPE_COMMON } = require("../constants/index.js");
 const { findUserInfo, getResultProgressUpload } = require("../utils/index.js");
@@ -79,7 +80,7 @@ class UserService {
         await User.findByIdAndUpdate(
           { _id: user._id },
           {
-            $push: { follows: FollowRes._id },
+            $push: { follows: followRes._id },
           }
         );
 
@@ -102,17 +103,14 @@ class UserService {
 
       let devicesToken = [];
       try {
-        const { email, phone } = auth;
-        const senderUser = await User.findOne({
-          $or: [{ email }, { phone }],
-        });
+        const user = await findUserInfo(auth);
 
         const type = payload.type;
         const comment = await Comment.addComment(
           content,
           parentId,
           id,
-          senderUser._id
+          user._id
         );
         if (type == TYPE_COMMON.POST) {
           // const post = await Post.findById({ _id: id }).populate({
@@ -153,10 +151,8 @@ class UserService {
       const like = await Like.addLike(id, type);
       let devicesToken = [];
       try {
-        const { email, phone } = auth;
-        const senderUser = await User.findOne({
-          $or: [{ email }, { phone }],
-        });
+        const user = await findUserInfo(auth);
+
         if ((type = TYPE_COMMON.POST)) {
           // const post = await Post.findById({ _id: id }).populate({
           //   path: "userId",
@@ -168,8 +164,7 @@ class UserService {
           //   path: "userId",
           //   select: "devicesToken",
           // });
-
-          devicesToken = [...video?.user?.devicesToken];
+          // devicesToken = [...video?.user?.devicesToken];
         } else {
           //  const video = await Comment.findById({ _id: id }).populate({
           //    path: "userId",
@@ -216,6 +211,31 @@ class UserService {
       } catch (error) {
         reject({
           message: "Have error when get list comment",
+          status: false,
+        });
+      }
+    });
+  }
+  async getInfoUser(userId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const postLength = await Post.find({ userId: userId });
+        const videoLength = await Video.find({ userId: userId });
+        const lengthTotalPost = postLength + videoLength;
+        const user = await User.find({ _id: userId }).populate({
+          path: "follows",
+          select: "followerId followingId",
+        });
+        resolve({
+          message: "Get info user success",
+          status: true,
+          lengthTotalPost,
+          user,
+        });
+      } catch (error) {
+        console.log("error", error);
+        reject({
+          message: "Have error when get info user",
           status: false,
         });
       }

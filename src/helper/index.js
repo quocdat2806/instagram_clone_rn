@@ -47,8 +47,10 @@ const uploadVideoToCloudinary = async (path) => {
 };
 
 const readSslKey = () => {
-  const publicKey = fs.readFileSync("../ssl/public.pem").toString();
-  const privateKey = fs.readFileSync("../ssl/private.pem").toString();
+  const publicKey = fs.readFileSync("../server/src/ssl/public.pem").toString();
+  const privateKey = fs
+    .readFileSync("../server/src/ssl/private.pem")
+    .toString();
   return {
     publicKey,
     privateKey,
@@ -70,9 +72,9 @@ const writeSslKey = async () => {
         format: "pem",
       },
     });
-    fs.writeFileSync("../ssl/public.pem", keyPair.publicKey);
+    fs.writeFileSync("../server/src/ssl/public.pem", keyPair.publicKey);
 
-    fs.writeFileSync("../ssl/private.pem", keyPair.privateKey);
+    fs.writeFileSync("../server/src/ssl/private.pem", keyPair.privateKey);
   }
 };
 

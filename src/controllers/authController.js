@@ -9,7 +9,6 @@ class AuthController {
       return res.status(400).json(error);
     }
   }
-
   async loginUser(req, res) {
     try {
       const response = await userService.loginUser(req.body);

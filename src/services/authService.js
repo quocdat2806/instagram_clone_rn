@@ -48,7 +48,11 @@ class AuthService {
       try {
         const user = await findUserInfo(parseToObj);
         if (user) {
-          const comparePasswords = bcrypt.compareSync(passWord, user.passWord);
+          const comparePasswords = bcrypt.compareSync(
+            passWord ?? "",
+            user.passWord ?? ""
+          );
+
           if (comparePasswords) {
             const accessToken = generateAccessToken(parseToObj);
             resolve({
@@ -69,9 +73,11 @@ class AuthService {
           });
         }
       } catch (error) {
+        console.log(error);
         reject({
           message: "Have error when login",
           status: false,
+          err: error.message,
         });
       }
     });

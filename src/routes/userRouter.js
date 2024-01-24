@@ -34,5 +34,10 @@ userRouter.get(
   middleware.verifyToken,
   userController.getComment
 );
+userRouter.get(
+  "/infoUser/:id",
+  middleware.verifyToken,
+  userController.getInfoUser
+);
 
 module.exports = userRouter;
