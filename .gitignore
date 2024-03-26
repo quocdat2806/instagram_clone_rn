@@ -1,5 +1,5 @@
 /node_modules
 .env
-src/ssl
-src/data_private
-src/firebase_config_projects
+/src/ssl
+/src/data_private
+/src/firebase_config_projects
