@@ -40,4 +40,10 @@ userRouter.get(
   userController.getInfoUser
 );
 
+userRouter.get(
+  "/getListPostFollowerUsers",
+  middleware.verifyToken,
+  userController.getListPostFollowerUsers
+);
+
 module.exports = userRouter;

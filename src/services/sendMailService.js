@@ -5,7 +5,7 @@ const {
   CLIENT_SECRET,
   REDIRECT_URL,
   REFRESH_TOKEN,
-} = require("../proxy");
+} = require("../data_private");
 
 const sendMail = async () => {
   try {

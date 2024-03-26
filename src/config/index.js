@@ -8,7 +8,7 @@ const {
   CLIENT_SECRET,
   REDIRECT_URL,
   REFRESH_TOKEN,
-} = require("../proxy");
+} = require("../data_private");
 const configOAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,

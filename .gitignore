@@ -1,3 +1,5 @@
 /node_modules
 .env
 /ssl
+/data_private
+/firebase_config_projects

@@ -17,8 +17,11 @@ class UserService {
     return new Promise(async (resolve, reject) => {
       try {
         const user = await findUserInfo(auth);
-        const result = await uploadFilesToCloudinary(payload.file);
-        const postItem = getResultProgressUpload(result);
+        let postItem = [];
+        if (payload.file) {
+          const result = await uploadFilesToCloudinary(payload.file);
+          postItem = getResultProgressUpload(result);
+        }
         await Post.create({
           images: [postItem],
           userId: user._id,
@@ -26,6 +29,7 @@ class UserService {
         });
         resolve({ message: "Create post  success", status: true });
       } catch (error) {
+        console.log(error);
         reject({
           message: "Have error when create post",
           status: false,
@@ -38,9 +42,11 @@ class UserService {
     return new Promise(async (resolve, reject) => {
       try {
         const user = await findUserInfo(auth);
-        const result = await uploadVideoToCloudinary(payload.path);
-        const videoItem = getResultProgressUpload(result);
-
+        let videoItem = [];
+        if (payload?.path) {
+          const result = await uploadVideoToCloudinary(payload.path);
+          videoItem = getResultProgressUpload(result);
+        }
         await Video.create({
           videos: [videoItem],
           userId: user._id,
@@ -48,6 +54,7 @@ class UserService {
         });
         resolve({ message: "Create video  success", status: true });
       } catch (error) {
+        console.log(error);
         reject({
           message: "Have error when create video",
           status: false,
@@ -197,7 +204,6 @@ class UserService {
       try {
         const pageSize = parseInt(limit);
         const pageNumber = parseInt(page);
-        console.log(pageNumber, pageSize);
         const skip = (pageNumber - 1) * pageSize;
         const comments = await Comment.find({ postId })
           .skip(skip)
@@ -215,6 +221,72 @@ class UserService {
         });
       }
     });
+  }
+  async getListPostFollowerUsers(auth, limit, page) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const pageSize = parseInt(limit);
+        const pageNumber = parseInt(page);
+        const skip = (pageNumber - 1) * pageSize;
+        const user = await findUserInfo(auth);
+        const followingUsers = await Follow.find({
+          followerId: user._id,
+        }).select("followingId");
+        const followingUserIds = followingUsers.map((user) => user.followingId);
+
+        const [totalPosts, totalVideos] = await Promise.all([
+          Post.countDocuments({ userId: { $in: followingUserIds } }),
+          Video.countDocuments({ userId: { $in: followingUserIds } }),
+        ]);
+        let limitPost = Math.min(totalPosts, Math.floor(limit / 2));
+        let limitVideo = Math.min(totalVideos, limit - limitPost);
+
+        if (totalVideos < totalPosts) {
+          limitPost = Math.min(totalPosts, limit - totalVideos);
+          limitVideo = totalVideos;
+        } else if (totalVideos === totalPosts) {
+          limitPost = totalPosts;
+          limitVideo = totalVideos;
+        } else {
+          limitPost = totalPosts;
+          limitVideo = Math.min(totalVideos, limit - totalPosts);
+        }
+
+        const postsAndVideos = await Promise.all([
+          Post.find({ userId: { $in: followingUserIds } })
+            .populate({
+              path: "userId",
+              select: "name avatar createdAt updatedAt",
+            })
+            .skip(skip)
+            .limit(limitPost),
+          Video.find({ userId: { $in: followingUserIds } })
+            .populate({
+              path: "userId",
+              select: "name avatar createdAt updatedAt",
+            })
+            .skip(skip)
+            .limit(limitVideo),
+        ]);
+        const data = {
+          posts: postsAndVideos[0],
+          videos: postsAndVideos[1],
+        };
+
+        resolve({
+          message: "Get list post follower of user success",
+          status: true,
+          data,
+        });
+      } catch (error) {
+        console.log("error", error);
+        reject({
+          message: "Get list post follower of user failed",
+          status: false,
+        });
+      }
+    });
+    s;
   }
   async getInfoUser(userId) {
     return new Promise(async (resolve, reject) => {

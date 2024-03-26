@@ -21,7 +21,7 @@ class UserController {
     const content = req.body.content ?? "";
     const video = {
       content,
-      path: req.file.path,
+      path: req?.file?.path ?? undefined,
     };
     try {
       const response = await userService.createVideo(video, auth);
@@ -78,6 +78,21 @@ class UserController {
     const userId = req.params.id;
     try {
       const response = await userService.getInfoUser(userId);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
+  }
+  async getListPostFollowerUsers(req, res) {
+    const auth = res.locals.data.payload;
+    const limit = req.query.limit;
+    const page = req.query.page;
+    try {
+      const response = await userService.getListPostFollowerUsers(
+        auth,
+        limit,
+        page
+      );
       return res.status(200).json(response);
     } catch (error) {
       return res.status(400).json(error);
