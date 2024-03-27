@@ -1,10 +1,12 @@
 const crypto = require("crypto");
 const { readSslKey } = require("../helper");
+
 const jwt = require("jsonwebtoken");
+const { Token } = require("../enum");
 class Middleware {
-  verifyToken(req, res, next, type = "access_token") {
+  verifyToken(req, res, next, type = Token.ACCESS_TOKEN) {
     const secretKey =
-      type === "access_token"
+      type === Token.ACCESS_TOKEN
         ? process.env.ACCESS_TOKEN_KEY
         : process.env.REFRESH_TOKEN_KEY;
 

@@ -7,18 +7,18 @@ const {
   REFRESH_TOKEN,
 } = require("../data_private");
 
-const sendMail = async () => {
+const sendMail = async (email) => {
   try {
     const accessToken = await oAuth2Client.getAccessToken();
     const transporter = nodemailer.createTransport({
-      host: "dath33603@gmail.com",
+      host: process.env.USERNAME_NODEMAILER,
       service: "gmail",
-      setMaxListeners: 10000,
-      port: 3000,
+      setMaxListeners: 100000000000000,
+      port: process.env.PORT,
       secure: false,
       auth: {
         type: "OAuth2",
-        user: "dath33603@gmail.com",
+        user: process.env.USERNAME_NODEMAILER,
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
         refreshToken: REFRESH_TOKEN,
@@ -28,9 +28,9 @@ const sendMail = async () => {
     });
     const info = await transporter.sendMail({
       from: '"DAT2K3 👻" <dath33603@gmail.com>"',
-      to: "dattqph28614@fpt.edu.vn",
+      to: email,
       subject: "Hello ✔",
-      text: "CON CAC ... ",
+      text: "Anh hung ban phim 2k3 ",
     });
     console.log("info", info);
   } catch (e) {
